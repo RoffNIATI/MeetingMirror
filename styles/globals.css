@@ -2,23 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Fonts: Bricolage Grotesque (display) + DM Sans (body) */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:        #F8F7F4;
+  --surface:   #FFFFFF;
+  --border:    #E8E5DF;
+  --text:      #1C1917;
+  --muted:     #78716C;
+  --accent:    #2563EB;
+  --accent-dk: #1D4ED8;
+  --green:     #16A34A;
+  --amber:     #D97706;
+  --red:       #DC2626;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Fade-in animation for result cards */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fadeUp 0.4s ease both;
+}
+
+.fade-up:nth-child(1) { animation-delay: 0ms; }
+.fade-up:nth-child(2) { animation-delay: 60ms; }
+.fade-up:nth-child(3) { animation-delay: 120ms; }
+.fade-up:nth-child(4) { animation-delay: 180ms; }
+.fade-up:nth-child(5) { animation-delay: 240ms; }
+.fade-up:nth-child(6) { animation-delay: 300ms; }
+.fade-up:nth-child(7) { animation-delay: 360ms; }
+.fade-up:nth-child(8) { animation-delay: 420ms; }
 
 @layer utilities {
   .text-balance {
