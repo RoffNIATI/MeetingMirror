@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { SAMPLE_TRANSCRIPT } from '@/lib/sampleTranscript';
-import { MOCK_RESULT } from '@/lib/mockResult';
+import { getMockResult } from '@/lib/mockResult';
+import { useLang } from '@/lib/LanguageContext';
+import { useT } from '@/lib/i18n';
 import type { AnalysisResult } from '@/lib/types';
 
-// Demo mode is active when NEXT_PUBLIC_DEMO_MODE=true in .env.local
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
 interface TranscriptInputProps {
@@ -13,6 +14,9 @@ interface TranscriptInputProps {
 }
 
 export default function TranscriptInput({ onResult, onReset, hasResult }: TranscriptInputProps) {
+  const { lang } = useLang();
+  const t = useT(lang);
+
   const [transcript, setTranscript] = useState('');
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState<string | null>(null);
@@ -38,23 +42,23 @@ export default function TranscriptInput({ onResult, onReset, hasResult }: Transc
     setLoading(true);
     setError(null);
 
-    // ── Demo mode: skip API, return mock data after a realistic delay ──
+    // Demo mode: return mock data (language-aware) after a realistic delay
     if (DEMO_MODE) {
       await new Promise((r) => setTimeout(r, 2800));
       setLoading(false);
-      onResult(MOCK_RESULT);
+      onResult(getMockResult(lang));
       setTimeout(() => {
         document.getElementById('results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
       return;
     }
 
-    // ── Real mode: call the API route ──
+    // Real mode: call the API route with selected language
     try {
       const res  = await fetch('/api/analyze', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ transcript }),
+        body:    JSON.stringify({ transcript, lang }),
       });
       const json = await res.json();
 
@@ -85,18 +89,14 @@ export default function TranscriptInput({ onResult, onReset, hasResult }: Transc
               <path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <div>
-              <span className="font-semibold text-amber">Demo mode</span>
-              <span className="text-[var(--muted)]"> — Results are simulated. To enable real AI analysis, add API credits at </span>
-              <a
-                href="https://console.anthropic.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent underline underline-offset-2 hover:text-accent-dk"
-              >
+              <span className="font-semibold text-amber">{t.demoMode}</span>
+              <span className="text-[var(--muted)]"> {t.demoBannerText} </span>
+              <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer"
+                className="text-accent underline underline-offset-2 hover:text-accent-dk">
                 console.anthropic.com
               </a>
-              <span className="text-[var(--muted)]"> and set </span>
-              <code className="text-xs bg-[var(--border)] px-1.5 py-0.5 rounded font-mono">NEXT_PUBLIC_DEMO_MODE=false</code>
+              <span className="text-[var(--muted)]"> — </span>
+              <code className="text-xs bg-[var(--border)] px-1.5 py-0.5 rounded font-mono">{t.demoBannerCode}</code>
             </div>
           </div>
         )}
@@ -104,11 +104,9 @@ export default function TranscriptInput({ onResult, onReset, hasResult }: Transc
         {/* Header */}
         <div className="mb-8">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--text)] mb-2">
-            Analyze a meeting
+            {t.analyzeTitle}
           </h2>
-          <p className="text-[var(--muted)]">
-            Paste any meeting transcript or notes below. The more detail, the better the analysis.
-          </p>
+          <p className="text-[var(--muted)]">{t.analyzeSub}</p>
         </div>
 
         {/* Input card */}
@@ -117,24 +115,21 @@ export default function TranscriptInput({ onResult, onReset, hasResult }: Transc
             ref={textareaRef}
             value={transcript}
             onChange={(e) => { setTranscript(e.target.value); setError(null); }}
-            placeholder="Paste your meeting transcript or notes here…&#10;&#10;Example: attendee names, discussion topics, decisions made, action items mentioned, open questions."
+            placeholder={t.placeholder}
             rows={14}
             className="w-full px-6 pt-6 pb-4 bg-transparent text-sm text-[var(--text)] placeholder:text-[var(--muted)]/60
               resize-none outline-none leading-relaxed font-body"
           />
 
-          {/* Footer bar */}
           <div className="px-6 py-4 border-t border-[var(--border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <button
-                onClick={loadSample}
-                className="text-xs text-accent hover:text-accent-dk font-medium transition-colors flex items-center gap-1"
-              >
+              <button onClick={loadSample}
+                className="text-xs text-accent hover:text-accent-dk font-medium transition-colors flex items-center gap-1">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M6 1v5M3.5 4l2.5 2.5L8.5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2 9h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
                 </svg>
-                Load example transcript
+                {t.loadExample}
               </button>
               <span className={`text-xs ${charCount > 45000 ? 'text-danger' : 'text-[var(--muted)]'}`}>
                 {charCount.toLocaleString()} / 50,000
@@ -143,33 +138,28 @@ export default function TranscriptInput({ onResult, onReset, hasResult }: Transc
 
             <div className="flex items-center gap-2">
               {(transcript || hasResult) && (
-                <button
-                  onClick={reset}
+                <button onClick={reset}
                   className="px-3.5 py-2 rounded-lg border border-[var(--border)] text-xs text-[var(--muted)]
-                    hover:text-[var(--text)] hover:border-[var(--muted)] transition-colors font-medium"
-                >
-                  Clear
+                    hover:text-[var(--text)] hover:border-[var(--muted)] transition-colors font-medium">
+                  {t.clear}
                 </button>
               )}
-              <button
-                onClick={analyze}
-                disabled={!isReady || loading}
+              <button onClick={analyze} disabled={!isReady || loading}
                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all
                   ${isReady && !loading
                     ? 'bg-accent text-white hover:bg-accent-dk shadow-sm hover:shadow-md cursor-pointer'
                     : 'bg-[var(--border)] text-[var(--muted)] cursor-not-allowed'
-                  }`}
-              >
+                  }`}>
                 {loading ? (
                   <>
                     <svg className="animate-spin" width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="20 10"/>
                     </svg>
-                    Analyzing…
+                    {t.analyzing}
                   </>
                 ) : (
                   <>
-                    {DEMO_MODE ? 'Run demo analysis' : 'Analyze meeting'}
+                    {DEMO_MODE ? t.demoAnalyzeBtn : t.analyzeBtn}
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -191,19 +181,15 @@ export default function TranscriptInput({ onResult, onReset, hasResult }: Transc
           </div>
         )}
 
-        {/* Loading state */}
+        {/* Loading */}
         {loading && (
           <div className="mt-6 p-5 rounded-xl bg-accent/5 border border-accent/15 text-sm text-accent flex items-center gap-3">
             <svg className="animate-spin shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeDasharray="24 12"/>
             </svg>
             <div>
-              <p className="font-medium">
-                {DEMO_MODE ? 'Running demo analysis…' : 'Claude is analyzing your meeting…'}
-              </p>
-              <p className="text-accent/70 text-xs mt-0.5">
-                Extracting decisions, action items, ambiguities, and clarity score.
-              </p>
+              <p className="font-medium">{DEMO_MODE ? t.demoLoadingTitle : t.loadingTitle}</p>
+              <p className="text-accent/70 text-xs mt-0.5">{t.loadingSub}</p>
             </div>
           </div>
         )}

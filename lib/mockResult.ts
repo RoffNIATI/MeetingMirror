@@ -1,6 +1,11 @@
 import type { AnalysisResult } from './types';
+import type { Lang } from './i18n';
 
-// Realistic mock result used in demo mode (based on the sample sprint retro transcript)
+export function getMockResult(lang: Lang): AnalysisResult {
+  return lang === 'fr' ? MOCK_RESULT_FR : MOCK_RESULT;
+}
+
+// ─── English mock ─────────────────────────────────────────────────────────────
 export const MOCK_RESULT: AnalysisResult = {
   executiveSummary:
     'The team completed Sprint 22 with the dashboard v2 shipped, though a late regression delayed the release by two days. Sprint 23 planning aligned on onboarding V2 as the primary goal. Several action items were assigned but two key dependencies — user research ownership and mobile scope confirmation — remain unresolved and could impact the sprint timeline.',
@@ -147,4 +152,153 @@ export const MOCK_RESULT: AnalysisResult = {
 
   suggestedFollowUp:
     'Hi team — quick recap from today\'s sprint planning.\n\nSprint 23 goal: Onboarding V2. Performance refactor is deferred.\n\n**Confirmed actions:**\n• Tom → investigate search latency by Friday\n• Priya → finalize designs once research lands (by Thursday)\n• Mia → frontend implementation post-designs\n• Chris → QA in final 2 days\n• Sarah → confirm mobile scope with mobile team by tomorrow\n\n**Still needs resolution:**\n• Who owns the user research summary? (Lisa?) — needed by Wednesday to unblock Priya\n• Mobile scope: in or out for V2? Sarah to confirm.\n\nAsync standups start next week via Slack — Sarah will set it up.\n\nPlease reply to claim any unowned items. — [Your name]',
+};
+
+// ─── French mock ──────────────────────────────────────────────────────────────
+export const MOCK_RESULT_FR: AnalysisResult = {
+  executiveSummary:
+    "L'équipe a clôturé le Sprint 22 avec la livraison du tableau de bord v2, bien qu'une régression détectée tard ait retardé la mise en production de deux jours. La planification du Sprint 23 a aligné l'équipe sur l'onboarding V2 comme objectif principal. Plusieurs actions ont été assignées, mais deux dépendances critiques — la propriété de la recherche utilisateur et la confirmation du périmètre mobile — restent non résolues et pourraient impacter le calendrier du sprint.",
+
+  keyDiscussionPoints: [
+    'Les requêtes de recherche sont en moyenne à 4 secondes, bien au-dessus de la cible de 800 ms — probablement un problème de requête N+1 (non confirmé)',
+    "L'onboarding V2 est l'objectif principal du sprint 23 ; les maquettes sont complètes à 80 %, en attente des résultats de la recherche utilisateur",
+    "Le périmètre mobile pour l'onboarding V2 est ambigu et n'a pas été confirmé avec l'équipe mobile",
+    'Le responsable du résumé de recherche utilisateur est inconnu — Lisa était supposée l\'être mais était absente',
+    "L'équipe a accepté de tester les stand-ups asynchrones via Slack pendant deux semaines",
+    'Le refactoring de performance a été explicitement reporté à un sprint ultérieur',
+  ],
+
+  confirmedDecisions: [
+    {
+      text: "L'onboarding V2 est l'objectif principal du Sprint 23.",
+      status: 'confirmed',
+      context: 'Explicitement confirmé par Sarah et James',
+    },
+    {
+      text: "Le refactoring de performance est reporté — non inclus dans le Sprint 23.",
+      status: 'confirmed',
+      context: "Sarah a confirmé : « L'onboarding V2 d'abord »",
+    },
+    {
+      text: 'Les stand-ups quotidiens Zoom seront remplacés par des stand-ups asynchrones sur Slack pour un essai de deux semaines.',
+      status: 'confirmed',
+      context: 'Majorité favorable ; Priya a exprimé une préférence pour le synchrone mais a accepté',
+    },
+    {
+      text: 'Tom va investiguer la latence de recherche et partager ses conclusions vendredi.',
+      status: 'confirmed',
+      context: 'Confirmé verbalement par Tom',
+    },
+  ],
+
+  actionItems: [
+    {
+      task: 'Investiguer la latence des requêtes de recherche et partager les causes racines avec l\'équipe',
+      owner: 'Tom',
+      ownerConfidence: 'high',
+      dueDate: 'Vendredi',
+    },
+    {
+      task: "Finaliser les maquettes de l'onboarding V2 une fois les résultats de recherche reçus",
+      owner: 'Priya',
+      ownerConfidence: 'high',
+      dueDate: 'Jeudi',
+    },
+    {
+      task: "Confirmer avec l'équipe mobile si le mobile est dans le périmètre de l'onboarding V2",
+      owner: 'Sarah',
+      ownerConfidence: 'high',
+      dueDate: 'Demain',
+    },
+    {
+      task: 'Mettre en place le processus de stand-up asynchrone sur Slack',
+      owner: 'Sarah',
+      ownerConfidence: 'medium',
+    },
+    {
+      task: "Livrer le résumé de recherche utilisateur pour débloquer le travail de design de Priya",
+      owner: 'Responsable inconnu',
+      ownerConfidence: 'unknown',
+      dueDate: 'Mercredi',
+    },
+    {
+      task: "Implémenter les parcours frontend de l'onboarding V2 une fois les maquettes finalisées",
+      owner: 'Mia',
+      ownerConfidence: 'high',
+    },
+    {
+      task: "Effectuer les tests QA de l'onboarding V2 pendant les deux derniers jours du sprint",
+      owner: 'Chris',
+      ownerConfidence: 'high',
+    },
+  ],
+
+  unresolvedItems: [
+    {
+      description:
+        "Le périmètre mobile pour l'onboarding V2 n'est pas défini. La question a été soulevée mais non résolue — Sarah a dit qu'elle confirmerait le lendemain.",
+      type: 'ambiguity',
+      impact: 'high',
+    },
+    {
+      description:
+        "Le responsable du résumé de recherche utilisateur est inconnu. Lisa était supposée l'être mais était absente. Personne n'a revendiqué cette tâche avant la fin de la réunion.",
+      type: 'missing_information',
+      impact: 'high',
+    },
+    {
+      description:
+        "Le problème de performance des recherches pourrait affecter la fonctionnalité d'export au Sprint 23, mais cela n'a pas été confirmé. Aucun plan de mitigation n'a été discuté.",
+      type: 'open_question',
+      impact: 'medium',
+    },
+    {
+      description:
+        "L'essai des stand-ups asynchrones n'a pas de critères de succès définis ni de processus de revue — il n'est pas clair ce que signifie « réévaluer » à la fin de l'essai.",
+      type: 'ambiguity',
+      impact: 'low',
+    },
+  ],
+
+  risks: [
+    {
+      description:
+        "Si le périmètre mobile n'est pas confirmé avant que Mia commence l'implémentation, la structure des composants devra peut-être être revue en cours de sprint, entraînant des retards.",
+      severity: 'high',
+    },
+    {
+      description:
+        "Le résumé de recherche utilisateur n'a pas de responsable confirmé. Si Lisa est indisponible, le travail de design de Priya sera bloqué et l'objectif du sprint pourrait glisser.",
+      severity: 'high',
+    },
+    {
+      description:
+        "Une latence de recherche à 4 secondes en moyenne pourrait impacter la rétention utilisateur si elle affecte les fonctionnalités du lancement Q2. La cause racine n'est pas encore confirmée.",
+      severity: 'medium',
+    },
+  ],
+
+  meetingClarity: {
+    score: 6,
+    rationale:
+      "La réunion avait un objectif principal clair et certaines actions bien assignées, mais s'est terminée avec deux blocages majeurs non résolus et sans clôture formelle ni récapitulatif des décisions.",
+    strengths: [
+      "La priorité du Sprint 23 était clairement alignée — onboarding V2 sans ambiguïté sur la décision",
+      "La tâche d'investigation de Tom a été confirmée avec un responsable nommé et une échéance",
+      'Le report du refactoring de performance était une décision claire et explicite',
+    ],
+    gaps: [
+      "Deux éléments à fort impact (périmètre mobile, propriété de la recherche) ont été laissés ouverts sans plan de résolution",
+      'La réunion s\'est terminée abruptement sans récapitulatif verbal des décisions ni des prochaines étapes',
+      'Plusieurs actions ont été évoquées sans responsable confirmé (résumé de recherche, mise en place des stand-ups)',
+    ],
+    recommendations: [
+      'Toujours clore avec un récapitulatif de 2 minutes : ce qui a été décidé, qui fait quoi, ce qui reste ouvert',
+      'Résoudre les questions de périmètre avec les équipes dépendantes avant le lancement du sprint, pas pendant la planification',
+      "Ne jamais laisser une tâche sans responsable — assigner un DRI temporaire si le vrai responsable est absent",
+    ],
+  },
+
+  suggestedFollowUp:
+    "Bonjour à tous — récap rapide de notre session de planification sprint.\n\nObjectif Sprint 23 : Onboarding V2. Le refactoring de performance est reporté.\n\n**Actions confirmées :**\n• Tom → investiguer la latence de recherche d'ici vendredi\n• Priya → finaliser les maquettes dès réception de la recherche (d'ici jeudi)\n• Mia → implémentation frontend après les maquettes\n• Chris → QA les 2 derniers jours\n• Sarah → confirmer le périmètre mobile avec l'équipe mobile d'ici demain\n\n**Points encore à résoudre :**\n• Qui est responsable du résumé de recherche utilisateur ? (Lisa ?) — nécessaire d'ici mercredi pour débloquer Priya\n• Périmètre mobile : inclus ou non dans la V2 ? Sarah doit confirmer.\n\nLes stand-ups asynchrones démarrent la semaine prochaine sur Slack — Sarah s'en occupe.\n\nMerci de répondre pour prendre en charge les actions sans responsable. — [Votre nom]",
 };

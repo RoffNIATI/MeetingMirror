@@ -61,6 +61,10 @@ Return a JSON object with EXACTLY this structure:
   "suggestedFollowUp": "string (a professional follow-up message the user can send after the meeting)"
 }`;
 
-export function buildUserMessage(transcript: string): string {
-  return `Analyze the following meeting transcript and return the JSON analysis:\n\n${transcript}`;
+export function buildUserMessage(transcript: string, lang: 'en' | 'fr' = 'en'): string {
+  const langInstruction =
+    lang === 'fr'
+      ? 'IMPORTANT: Write ALL text values in the JSON response in French.'
+      : 'IMPORTANT: Write ALL text values in the JSON response in English.';
+  return `${langInstruction}\n\nAnalyze the following meeting transcript and return the JSON analysis:\n\n${transcript}`;
 }

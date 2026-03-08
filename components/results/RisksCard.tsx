@@ -1,13 +1,13 @@
 import CardShell from './CardShell';
 import Badge from '@/components/ui/Badge';
+import { useLang } from '@/lib/LanguageContext';
+import { useT } from '@/lib/i18n';
 import type { Risk, Severity } from '@/lib/types';
 
 interface Props { risks: Risk[] }
 
 const severityVariant: Record<Severity, 'red' | 'amber' | 'default'> = {
-  high:   'red',
-  medium: 'amber',
-  low:    'default',
+  high: 'red', medium: 'amber', low: 'default',
 };
 
 function risksToText(risks: Risk[]): string {
@@ -15,25 +15,15 @@ function risksToText(risks: Risk[]): string {
 }
 
 export default function RisksCard({ risks }: Props) {
+  const { lang } = useLang();
+  const t = useT(lang);
   return (
-    <CardShell
-      title="Risks"
-      copyText={risksToText(risks)}
-      iconBg="bg-danger/10"
-      iconColor="text-danger"
-      icon={
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2L1.5 13h13L8 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-          <path d="M8 6v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      }
-    >
+    <CardShell title={t.cardRisks} copyText={risksToText(risks)} iconBg="bg-danger/10" iconColor="text-danger"
+      icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13h13L8 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M8 6v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>}>
       {risks.length === 0 ? (
         <p className="text-sm text-green italic flex items-center gap-1.5">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 6.5l3 3 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          No significant risks identified.
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          {t.noRisks}
         </p>
       ) : (
         <ul className="space-y-3">

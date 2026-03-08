@@ -17,7 +17,7 @@ export default async function handler(
     return res.status(405).json({ success: false, error: 'Method not allowed.' });
   }
 
-  const { transcript } = req.body;
+  const { transcript, lang = 'en' } = req.body;
 
   // Basic validation
   if (!transcript || typeof transcript !== 'string' || transcript.trim().length < 50) {
@@ -47,7 +47,7 @@ export default async function handler(
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [
-        { role: 'user', content: buildUserMessage(transcript.trim()) },
+        { role: 'user', content: buildUserMessage(transcript.trim(), lang) },
       ],
     });
 
